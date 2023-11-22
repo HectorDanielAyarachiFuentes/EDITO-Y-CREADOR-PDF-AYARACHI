@@ -1,42 +1,31 @@
-async function descargarComoPDF() {
-            var contenido = document.getElementById("contenido");
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-            // Opciones de configuración para html2pdf
-            var opciones = {
-                margin: 10,
-                filename: 'mi_archivo.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 
-            // Usar html2pdf para convertir y descargar el contenido como PDF
-            const pdfBlob = await html2pdf().from(contenido).set(opciones).toPdf().output('blob');
+    <script>
+      tinymce.init({
+        selector: '#mytextarea',
+        plugins: [
+          'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
+          'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+          'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
+        ],
+        toolbar: 'undo redo | formatpainter casechange blocks | bold italic backcolor | ' +
+          'alignleft aligncenter alignright alignjustify | ' +
+          'bullist numlist checklist outdent indent | removeformat | a11ycheck code table help'
+      });
+    </script>
 
-            // Crear un enlace temporal y descargar el archivo
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(pdfBlob);
-            link.download = 'mi_archivo.pdf';
-            link.click();
-        }
+  </head>
 
-        function copiarContenido() {
-            var contenido = document.getElementById("contenido");
-            var copiarContenido = document.getElementById("copiarContenido");
-
-            // Copiar el contenido al área designada
-            copiarContenido.textContent = contenido.innerText;
-
-            // Seleccionar y copiar el texto
-            var rango = document.createRange();
-            rango.selectNode(copiarContenido);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(rango);
-            document.execCommand("copy");
-
-            // Deseleccionar el texto
-            window.getSelection().removeAllRanges();
-
-            // Notificar al usuario
-            alert("Contenido copiado al portapapeles");
-        }
+  <body>
+  <h1>TinyMCE Quick Start Guide</h1>
+    <form method="post">
+      <textarea id="mytextarea">Hello, World!</textarea>
+    </form>
+  </body>
+</html>
