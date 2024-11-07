@@ -12,7 +12,12 @@ tinymce.init({
       });
 
 // Arreglo para almacenar el historial de PDFs
-let pdfHistory = [];
+let pdfHistory = JSON.parse(localStorage.getItem('pdfHistory')) || [];
+
+// Cargar historial al iniciar
+window.addEventListener('load', () => {
+  updateHistoryList();
+});
 
 //*Script guardar el PDF/
 async function saveAsPDF() {
@@ -31,22 +36,32 @@ async function saveAsPDF() {
   const pdfBlob = await html2pdf().from(content).set(options).toPdf().output('blob');
   const pdfUrl = URL.createObjectURL(pdfBlob);
 
-  // Crear entrada en el historial
-  const historyEntry = {
-    filename: filename,
-    url: pdfUrl,
-    timestamp: timestamp
+  // Convertir el Blob a Base64 para almacenamiento
+  const reader = new FileReader();
+  reader.readAsDataURL(pdfBlob);
+  reader.onloadend = function() {
+    const base64data = reader.result;
+    
+    // Crear entrada en el historial
+    const historyEntry = {
+      filename: filename,
+      pdfData: base64data,
+      timestamp: timestamp
+    };
+    pdfHistory.push(historyEntry);
+    
+    // Guardar en localStorage
+    localStorage.setItem('pdfHistory', JSON.stringify(pdfHistory));
+    
+    // Actualizar la lista de historial en el DOM
+    updateHistoryList();
+    
+    // Descargar el PDF
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.download = filename;
+    link.click();
   };
-  pdfHistory.push(historyEntry);
-
-  // Crear o actualizar la lista de historial en el DOM
-  updateHistoryList();
-
-  // Descargar el PDF
-  const link = document.createElement('a');
-  link.href = pdfUrl;
-  link.download = filename;
-  link.click();
 }
 
 function updateHistoryList() {
@@ -116,7 +131,7 @@ function updateHistoryList() {
         color: #666;
         font-size: 14px;
       ">${entry.timestamp}</span>
-      <a href="${entry.url}" 
+      <a href="${entry.pdfData}" 
          download="${entry.filename}" 
          style="
            color: #1a237e;
